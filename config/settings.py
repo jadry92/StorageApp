@@ -58,11 +58,13 @@ DJANGO_APPS = [
 ]
 THIRD_PARTY_APPS = [
     "allauth",
-    "allauth.account"
+    "allauth.account",
+    "allauth.socialaccount",
 ]
 
 LOCAL_APPS = [
-    "users"
+    "users",
+    "storage",
 ]
 
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
