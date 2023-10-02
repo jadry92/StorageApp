@@ -5,7 +5,7 @@ This file is used to define the views for the storage app.
 # Django
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import DetailView, FormView, UpdateView, ListView
+from django.views.generic import DetailView, FormView, UpdateView, ListView, DeleteView
 from django.urls import reverse_lazy
 # Models
 from storage.models import Product, Stock, Transaction
@@ -39,19 +39,67 @@ class ListProductsView(LoginRequiredMixin, ListView):
     """
     model = Product
     template_name = 'storage/list_products.html'
-    context_object_name = 'product'
+    context_object_name = 'products'
 
 
-class CreateProduct(LoginRequiredMixin, FormView):
+class DeleteProductView(LoginRequiredMixin, DeleteView):
+    """Delete Product View"""
+    success_url = reverse_lazy('list_products')
+    model = Product
+    template_name = 'storage/delete_product.html'
+
+class CreateProductView(LoginRequiredMixin, FormView):
     """
         Create Product View
     """
     template_name = 'storage/create_product.html'
     form_class = ProductForm
-    success_url = reverse_lazy('storage:list_products')
+    success_url = reverse_lazy('list_products')
+
+    def get_form_kwargs(self):
+        """
+            This method is used to add extra arguments to the form.
+        """
+        kwargs = super().get_form_kwargs()
+        kwargs.update({'user': self.request.user})
+        return kwargs
 
     def form_valid(self, form):
         """
             This method is used to validate the form.
         """
+        self.object = form.save()
         return super().form_valid(form)
+
+
+class EditProductView(LoginRequiredMixin, UpdateView):
+    """
+        Edit Product View
+    """
+    model = Product
+    template_name = 'storage/create_product.html'
+    form_class = ProductForm
+    success_url = reverse_lazy('list_products')
+
+    def get_form_kwargs(self):
+        """
+            This method is used to add extra arguments to the form.
+        """
+        kwargs = super().get_form_kwargs()
+        kwargs.update({'user': self.request.user})
+        return kwargs
+
+    def form_valid(self, form):
+        """
+            This method is used to validate the form.
+        """
+        self.object = form.save()
+        return super().form_valid(form)
+
+class ListTransactionView(LoginRequiredMixin,ListView):
+    """
+        List Transaction View
+    """
+    model = Transaction
+    template_name = 'storage/list_transactions.html'
+    context_object_name = 'transactions'

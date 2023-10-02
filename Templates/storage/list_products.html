@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="container">
+    <div class="row">
+      <div class="col-md-3">
+        <a href="{% url "create_product" %}">
+          <span class="badge rounded-pill text-bg-primary">New Product +</span>
+        </a>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12 text-center">
+        <h2>Products</h2>
+      </div>
+    </div>
+    <table class="table">
+      <thead>
+        <tr>
+          <th class="col">Id</th>
+          <th class="col">Name</th>
+          <th class="col">SKU</th>
+          <th class="col">Quantity</th>
+          <th class="col">Actions</th>
+        </tr>
+      {% if products %}
+      <tbody>
+        {% for product in products %}
+        <tr>
+          <td>{{ product.id }}</td>
+          <td>{{ product.name }}</td>
+          <td>{{ product.sku }}</td>
+          <td>{{ product.quantity }}</td>
+          <td>
+            <a href="{% url 'edit_product' product.id %}" class="btn btn-primary">Edit</a>
+            <a href="{% url 'delete_product' product.id %}" class="btn btn-danger">Delete</a>
+        </tr>
+        {% endfor %}
+      </tbody>
+      {% else %}
+      <p>No products found.</p>
+      {% endif %}
+    </table>
+  </div>
+{% endblock content %}

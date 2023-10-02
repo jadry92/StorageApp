@@ -9,7 +9,7 @@ from django.contrib.auth import get_user_model
 # User Model
 User = get_user_model()
 
-TRANSACTION_OPTIONS = [(0, 'CREATE'), (1, 'UPDATE'), (2, 'DELETE')]
+TRANSACTION_OPTIONS = [(0, 'CREATE'), (1, 'EDIT'), (2, 'DELETE')]
 
 
 class Stock(models.Model):
