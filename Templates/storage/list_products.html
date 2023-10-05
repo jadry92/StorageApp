@@ -19,7 +19,7 @@
         <tr>
           <th class="col">Id</th>
           <th class="col">Name</th>
-          <th class="col">SKU</th>
+          <th class="col">description</th>
           <th class="col">Quantity</th>
           <th class="col">Actions</th>
         </tr>
@@ -29,8 +29,8 @@
         <tr>
           <td>{{ product.id }}</td>
           <td>{{ product.name }}</td>
-          <td>{{ product.sku }}</td>
-          <td>{{ product.quantity }}</td>
+          <td>{{ product.description }}</td>
+          <td>{{ product.stock }}</td>
           <td>
             <a href="{% url 'edit_product' product.id %}" class="btn btn-primary">Edit</a>
             <a href="{% url 'delete_product' product.id %}" class="btn btn-danger">Delete</a>

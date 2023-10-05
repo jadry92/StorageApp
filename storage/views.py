@@ -5,8 +5,9 @@ This file is used to define the views for the storage app.
 # Django
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import DetailView, FormView, UpdateView, ListView, DeleteView
+from django.views.generic import DetailView, FormView, ListView, DeleteView
 from django.urls import reverse_lazy
+from django.shortcuts import get_object_or_404
 # Models
 from storage.models import Product, Stock, Transaction
 
@@ -48,6 +49,20 @@ class DeleteProductView(LoginRequiredMixin, DeleteView):
     model = Product
     template_name = 'storage/delete_product.html'
 
+    def form_valid(self, form):
+        """
+            This method is used to delete the product.
+        """
+        instance = self.get_object()
+        description = f'{self.request.user.username} Deleted - {instance.name}'
+        Transaction.objects.create(
+            user=self.request.user,
+            product_name=instance.name,
+            transaction_type=2,
+            description=description
+        )
+        return super().form_valid(form)
+
 class CreateProductView(LoginRequiredMixin, FormView):
     """
         Create Product View
@@ -56,45 +71,82 @@ class CreateProductView(LoginRequiredMixin, FormView):
     form_class = ProductForm
     success_url = reverse_lazy('list_products')
 
-    def get_form_kwargs(self):
-        """
-            This method is used to add extra arguments to the form.
-        """
-        kwargs = super().get_form_kwargs()
-        kwargs.update({'user': self.request.user})
-        return kwargs
-
     def form_valid(self, form):
         """
             This method is used to validate the form.
         """
-        self.object = form.save()
+        data = form.cleaned_data
+        product = Product.objects.create(
+            name=data['name'],
+            description=data['description'],
+            image=data['image']
+        )
+        Stock.objects.create(
+            product=product,
+            quantity=data['quantity']
+        )
+        description = f'{self.request.user.username} Created - {product.name}'
+        Transaction.objects.create(
+            user=self.request.user,
+            product_name=product.name,
+            transaction_type=0,
+            description=description
+        )
         return super().form_valid(form)
 
-
-class EditProductView(LoginRequiredMixin, UpdateView):
+class EditProductView(LoginRequiredMixin, FormView):
     """
         Edit Product View
     """
-    model = Product
-    template_name = 'storage/create_product.html'
-    form_class = ProductForm
+    template_name = 'storage/edit_product.html'
     success_url = reverse_lazy('list_products')
+    form_class = ProductForm
 
-    def get_form_kwargs(self):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.product_instance = None
+        self.stock_instance = None
+
+    def get_initial(self):
         """
-            This method is used to add extra arguments to the form.
+            This method is used to add initial data to the form.
         """
-        kwargs = super().get_form_kwargs()
-        kwargs.update({'user': self.request.user})
-        return kwargs
+        self.product_instance = get_object_or_404(Product, id=self.kwargs['pk'])
+        self.stock_instance = get_object_or_404(Stock, product=self.product_instance)
+        return {
+            'name': self.product_instance.name,
+            'description': self.product_instance.description,
+            'quantity': self.stock_instance.quantity,
+            'image': self.product_instance.image
+        }
+
 
     def form_valid(self, form):
         """
             This method is used to validate the form.
         """
-        self.object = form.save()
+        # Update product
+        data = form.cleaned_data
+
+        self.product_instance.name = data.get('name', self.product_instance.name)
+        self.product_instance.description = data.get('description', self.product_instance.description)
+        self.product_instance.image = data.get('image', self.product_instance.image)
+        self.product_instance.save()
+        # Update self.stock_instance
+
+        self.stock_instance.quantity = data.get('quantity', self.stock_instance.quantity)
+        self.stock_instance.save()
+        # Create transaction
+        description = f' {self.request.user} Edited - {self.product_instance.name}'
+        Transaction.objects.create(
+            user=self.request.user,
+            product_name=self.product_instance.name,
+            transaction_type=1,
+            description=description
+        )
         return super().form_valid(form)
+
+
 
 class ListTransactionView(LoginRequiredMixin,ListView):
     """

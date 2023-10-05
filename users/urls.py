@@ -3,9 +3,13 @@
 """
 
 # Django
-from django.urls import path, include
+from django.urls import path
 
+# Views
+from users.views import UserDetailView, UserUpdateView
 
+app_name = "users"
 urlpatterns = [
-    path("auth/", include("allauth.urls"))
+    path("detail/<str:username>/", UserDetailView.as_view(), name="detail"),
+    path("update/<str:username>/", UserUpdateView.as_view(), name="update"),
 ]
