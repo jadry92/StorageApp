@@ -7,7 +7,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import DetailView, FormView, ListView, DeleteView
 from django.urls import reverse_lazy
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 # Models
 from storage.models import Product, Stock, Transaction
 
@@ -48,6 +48,7 @@ class DeleteProductView(LoginRequiredMixin, DeleteView):
     success_url = reverse_lazy('list_products')
     model = Product
     template_name = 'storage/delete_product.html'
+    http_method_names = ['get', 'post']
 
     def form_valid(self, form):
         """
@@ -76,14 +77,14 @@ class CreateProductView(LoginRequiredMixin, FormView):
             This method is used to validate the form.
         """
         data = form.cleaned_data
+        stock = Stock.objects.create(
+            quantity=data['quantity']
+        )
         product = Product.objects.create(
             name=data['name'],
             description=data['description'],
-            image=data['image']
-        )
-        Stock.objects.create(
-            product=product,
-            quantity=data['quantity']
+            image=data['image'],
+            stock=stock
         )
         description = f'{self.request.user.username} Created - {product.name}'
         Transaction.objects.create(
@@ -112,7 +113,7 @@ class EditProductView(LoginRequiredMixin, FormView):
             This method is used to add initial data to the form.
         """
         self.product_instance = get_object_or_404(Product, id=self.kwargs['pk'])
-        self.stock_instance = get_object_or_404(Stock, product=self.product_instance)
+        self.stock_instance = self.product_instance.stock
         return {
             'name': self.product_instance.name,
             'description': self.product_instance.description,

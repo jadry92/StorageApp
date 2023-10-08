@@ -1,9 +1,21 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <form method="post">{% csrf_token %}
-    <p>Are you sure you want to delete "{{ object }}"?</p>
-    {{ form }}
-    <input type="submit" value="Confirm">
-  </form>
+  <div class="container">
+    <div class="row justify-content-center align-items-center">
+      <div class="col">
+        <h3 class="text-center">Are you sure you want to delete : {{ object.name }}</h3>
+      </div>
+    </div>
+    <div class="row justify-content-center align-items-center">
+      <div class="col">
+        <form action="" method="post">
+          {% csrf_token %}
+          {{ form }}
+          <input type="submit" value="Yes" class="btn btn-danger">
+          <a href="{% url 'home' %}" class="btn btn-primary">No</a>
+        </form>
+      </div>
+    </div>
+  </div>
 {% endblock content %}

@@ -1,4 +1,17 @@
 {% extends "base.html" %}
+{% load static %}
+
+{% block javascript %}
+<!-- Bootstrap JS -->
+<script defer
+    src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.2.3/js/bootstrap.min.js"
+    integrity="sha512-1/RvZTcCDEUjY/CypiMz+iqqtaoQfAITmNSJY17Myp4Ms5mdxPS5UV7iOfdZoxcGhzFbOm6sntTKJppjvuhg4g=="
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"></script>
+  <!-- Your stuff: Third-party javascript libraries go here -->
+  <script defer src="{% static 'js/project.js' %}"></script>
+  <script defer src="{% static 'js/list_products.js' %}"></script>
+{% endblock javascript %}
 
 {% block content %}
   <div class="container">
@@ -33,7 +46,7 @@
           <td>{{ product.stock }}</td>
           <td>
             <a href="{% url 'edit_product' product.id %}" class="btn btn-primary">Edit</a>
-            <a href="{% url 'delete_product' product.id %}" class="btn btn-danger">Delete</a>
+            <a id="delete-product-button" href="{% url 'delete_product' product.id %}" class="btn btn-danger">Delete</a>
         </tr>
         {% endfor %}
       </tbody>

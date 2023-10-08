@@ -11,4 +11,5 @@ urlpatterns = [
     path("user/", include("users.urls")),
     path("storage/", include("storage.urls"), name="storage"),
     path("",TemplateView.as_view(template_name="home.html"),name="home"),
+    path("accounts/", include("allauth.urls"), name="accounts"),
 ]
